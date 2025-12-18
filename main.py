@@ -3,40 +3,66 @@ import json
 import torch
 from generate_data import generate_raw_pairs, precompute_cot, PROMPT_TEMPLATE
 from transformer_lens import HookedTransformer
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import experiment
+import plot_results 
+
+# SETUP
+MODEL_ID = "Qwen/Qwen2.5-Math-1.5B"
+DATA_PATH = "dataset_final.json"
+
+def load_model():
+    print(f"Loading {MODEL_ID} via HF...")
+    hf_model = AutoModelForCausalLM.from_pretrained(
+        MODEL_ID, 
+        device_map="cuda", 
+        trust_remote_code=True
+    )
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
+    
+    print("Wrapping in TransformerLens...")
+    model = HookedTransformer.from_pretrained(
+        "Qwen/Qwen2.5-1.5B", # This alias string matters less when hf_model is passed
+        hf_model=hf_model,
+        tokenizer=tokenizer,
+        device="cuda",
+        fold_ln=False,
+        center_writing_weights=False,
+        center_unembed=False
+    )
+    return model
 
 def main():
-    DATA_PATH = "dataset_final.json"
-    MODEL_NAME = "Qwen/Qwen2.5-1.5B"
-    WEIGHTS_PATH = "Qwen/Qwen2.5-Math-1.5B"
-    
+    # 1. Load Model ONCE
+    model = load_model()
+
+    # 2. Generate Data (if missing)
     if not os.path.exists(DATA_PATH):
         print("--- Step 1: Generating Dataset ---")
-        temp_model = HookedTransformer.from_pretrained(
-            model_name=MODEL_NAME, 
-            device="cuda" if torch.cuda.is_available() else "cpu",
-            center_unembed=True,
-            center_writing_weights=True,
-            fold_ln=True,
-            hf_model_name=WEIGHTS_PATH
-        )
-        
         raw_data = generate_raw_pairs(num_samples=50)
-        final_dataset = precompute_cot(temp_model, raw_data["easy"] + raw_data["hard"], PROMPT_TEMPLATE)
+        
+        # Flatten
+        combined_raw = []
+        for item in raw_data["easy"]: combined_raw.append(item)
+        for item in raw_data["hard"]: combined_raw.append(item)
+            
+        final_dataset = precompute_cot(model, combined_raw, PROMPT_TEMPLATE)
         
         with open(DATA_PATH, "w") as f:
-            json.dump(final_dataset, f)
-        
-        del temp_model
-        torch.cuda.empty_cache()
+            json.dump(final_dataset, f, indent=2)
         print(f"Dataset saved to {DATA_PATH}\n")
     else:
-        print(f"--- Step 1: {DATA_PATH} already exists. Skipping generation. ---\n")
+        print(f"--- Step 1: {DATA_PATH} exists. Skipping generation. ---\n")
 
+    # 3. Run Experiment
     print("--- Step 2: Running Activation Patching Experiment ---")
-    import experiment 
+    experiment.run_pipeline(model)
     
+    # 4. Plot
     print("\n--- Step 3: Generating Visualizations ---")
-    import plot_results
+    # Call plot_results logic (assuming you put the plotting code in a function or main block)
+    # Since plot_results.py as written executes on import, this import triggers it.
+    # Ideally, wrap plot_results logic in a function too, but import works for now.
     
     print("\n[SUCCESS] Experiment Pipeline Complete.")
     print("Check 'laziness_switch_plot.png' for the final results.")
