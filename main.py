@@ -28,7 +28,7 @@ def load_model():
         device="cuda:0",
         fold_ln=False,
         center_writing_weights=False,
-        center_unembed=False
+        center_unembed=False,
         fold_value_biases=False
     )
     return model
