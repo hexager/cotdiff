@@ -14,7 +14,7 @@ def main():
         temp_model = HookedTransformer.from_pretrained(
             model_name=MODEL_NAME, 
             device="cuda" if torch.cuda.is_available() else "cpu",
-            center_unembed=True
+            center_unembed=True,
             center_writing_weights=True,
             fold_ln=True,
             hf_model_name=WEIGHTS_PATH

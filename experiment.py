@@ -10,7 +10,7 @@ MODEL_NAME = "Qwen/Qwen2.5-1.5B"
 WEIGHTS_PATH = "Qwen/Qwen2.5-Math-1.5B"
 print(f"Loading HERE {MODEL_NAME}...")
 model = HookedTransformer.from_pretrained(
-    MODEL_NAME,
+    model_name=MODEL_NAME,
     center_unembed=True,
     center_writing_weights=True,
     fold_ln=True,
