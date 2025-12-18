@@ -64,5 +64,4 @@ def precompute_cot(model, raw_data, prompt_template):
 
     return final_dataset
 
-# TEMPLATE (Adjust based on Qwen format)
 PROMPT_TEMPLATE = "User: Compute {} * {}. Show your working step by step, then give \"Final Answer: \" followed by the number on the last line.\nAssistant:"
