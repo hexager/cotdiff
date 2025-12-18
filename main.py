@@ -12,9 +12,12 @@ def main():
     if not os.path.exists(DATA_PATH):
         print("--- Step 1: Generating Dataset ---")
         temp_model = HookedTransformer.from_pretrained(
-            MODEL_NAME, 
+            model_name=MODEL_NAME, 
             device="cuda" if torch.cuda.is_available() else "cpu",
-            **{"model_name": WEIGHTS_PATH}
+            center_unembed=True
+            center_writing_weights=True,
+            fold_ln=True,
+            hf_model_name=WEIGHTS_PATH
         )
         
         raw_data = generate_raw_pairs(num_samples=50)
