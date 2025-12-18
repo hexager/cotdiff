@@ -60,10 +60,7 @@ def main():
     
     # 4. Plot
     print("\n--- Step 3: Generating Visualizations ---")
-    # Call plot_results logic (assuming you put the plotting code in a function or main block)
-    # Since plot_results.py as written executes on import, this import triggers it.
-    # Ideally, wrap plot_results logic in a function too, but import works for now.
-    
+    plot_results.generate_plot()
     print("\n[SUCCESS] Experiment Pipeline Complete.")
     print("Check 'laziness_switch_plot.png' for the final results.")
 
