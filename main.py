@@ -29,6 +29,7 @@ def load_model():
         fold_ln=False,
         center_writing_weights=False,
         center_unembed=False
+        fold_value_biases=False
     )
     return model
 
