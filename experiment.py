@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 
 MODEL_NAME = "Qwen/Qwen2.5-Math-1.5B" 
+WEIGHTS_PATH = "Qwen/Qwen2.5-Math-1.5B"
 print(f"Loading {MODEL_NAME}...")
 model = HookedTransformer.from_pretrained(
     MODEL_NAME,
@@ -14,6 +15,7 @@ model = HookedTransformer.from_pretrained(
     center_writing_weights=True,
     fold_ln=True,
     device="cuda" if torch.cuda.is_available() else "cpu"
+    **{"model_name": WEIGHTS_PATH}
 )
 
 with open("dataset_final.json", "r") as f:
