@@ -15,7 +15,7 @@ def load_model():
     print(f"Loading {MODEL_ID} via HF...")
     hf_model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID, 
-        device_map="cuda", 
+        device_map="cuda:0", 
         trust_remote_code=True
     )
     tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
@@ -25,7 +25,7 @@ def load_model():
         "Qwen/Qwen2.5-1.5B", # This alias string matters less when hf_model is passed
         hf_model=hf_model,
         tokenizer=tokenizer,
-        device="cuda",
+        device="cuda:0",
         fold_ln=False,
         center_writing_weights=False,
         center_unembed=False
