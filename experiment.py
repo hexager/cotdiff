@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 
-MODEL_NAME = "Qwen/Qwen2.5-Math-1.5B" 
+MODEL_NAME = "Qwen/Qwen2.5-1.5B" 
 WEIGHTS_PATH = "Qwen/Qwen2.5-Math-1.5B"
 print(f"Loading {MODEL_NAME}...")
 model = HookedTransformer.from_pretrained(
