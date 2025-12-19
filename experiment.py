@@ -20,25 +20,43 @@ def run_layer_sweep(model, dataset, batch_size=4):
     logit_diffs = torch.zeros((n_layers, n_samples))
     
     for i in tqdm(range(0, n_samples, batch_size)):
-        batch = dataset[i : i+batch_size]
+        batch = dataset[i : i+batch_size]      
+        # 1. Prepare Inputs: STRIP THE ANSWER
+        # We want the input to end at "Final Answer: "
+        clean_prompts_stripped = []
+        corrupt_prompts_stripped = []
         
-        # Prepare inputs
-        clean_prompts = [b["clean_text"] for b in batch]
-        corrupt_prompts = [b["corrupt_text"] for b in batch]
+        for b in batch:
+            # Assumes b['clean_text'] ends with the answer number
+            # We cut off the answer string
+            clean_cut = b["clean_text"].replace(b["clean_ans"], "").strip()
+            corrupt_cut = b["corrupt_text"].replace(b["corrupt_ans"], "").strip()
+            clean_prompts_stripped.append(clean_cut)
+            corrupt_prompts_stripped.append(corrupt_cut)
+            
+        clean_tokens = model.to_tokens(clean_prompts_stripped)
+        corrupt_tokens = model.to_tokens(corrupt_prompts_stripped)
         
-        # Tokenize (TransformerLens handles padding automatically if needed, 
-        # but since we filtered for exact length, they should stack perfectly!)
-        clean_tokens = model.to_tokens(clean_prompts)
-        corrupt_tokens = model.to_tokens(corrupt_prompts)
+        # 2. Get Targets (The Answer Tokens)
+        # Note: We need the Token ID that represents the answer (e.g. "15")
+        # Be careful with whitespace! " 15" vs "15".
+        # Best way: Tokenize the FULL text and take the token *after* the cut.
         
-        # Get target token IDs
-        # We want: Logit(Clean_Ans) - Logit(Corrupt_Ans)
-        clean_ans_ids = [get_answer_token_id(model.tokenizer, b["clean_ans"]) for b in batch]
-        corrupt_ans_ids = [get_answer_token_id(model.tokenizer, b["corrupt_ans"]) for b in batch]
+        clean_ans_ids = []
+        corrupt_ans_ids = []
         
+        for b in batch:
+            full_toks = model.to_tokens(b["clean_text"])[0]
+            # The answer token is the one that was stripped. 
+            # Since we stripped from end, it's likely the last token(s).
+            # Let's assume the answer is the LAST token of the full text (if single token).
+            clean_ans_ids.append(full_toks[-1].item())
+            
+            full_toks_corr = model.to_tokens(b["corrupt_text"])[0]
+            corrupt_ans_ids.append(full_toks_corr[-1].item())
+
         clean_ans_t = torch.tensor(clean_ans_ids, device=model.cfg.device)
         corrupt_ans_t = torch.tensor(corrupt_ans_ids, device=model.cfg.device)
-
         # 1. Cache Clean Run (Last Token Only)
         clean_cache = {}
         def cache_last_token(resid_pre, hook):
