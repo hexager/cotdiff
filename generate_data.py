@@ -22,10 +22,10 @@ def generate_natural_pairs(model, tokenizer, num_samples=50):
 
     candidates_hard = []
     for _ in range(num_samples * 5):
-        a = random.randint(11, 99)
-        b = random.randint(11, 99)
-        b_c = random.randint(11, 99)
-        while b_c == b: b_c = random.randint(11, 99)
+        a = random.randint(100, 999)
+        b = random.randint(100, 999)
+        b_c = random.randint(100, 999)
+        while b_c == b: b_c = random.randint(100, 999)
         candidates_hard.append((a, b, b_c, "hard"))
         
     all_candidates = candidates_easy + candidates_hard
