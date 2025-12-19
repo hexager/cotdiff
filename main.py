@@ -15,7 +15,7 @@ def main():
     print("Loading Model...")
     hf_model = AutoModelForCausalLM.from_pretrained(MODEL_ID, device_map="cuda", trust_remote_code=True)
     tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
-    model = HookedTransformer.from_pretrained("Qwen/Qwen2.5-1.5B", hf_model=hf_model, tokenizer=tokenizer)
+    model = HookedTransformer.from_pretrained("Qwen/Qwen2.5-1.5B", hf_model=hf_model, tokenizer=tokenizer, device="cuda")
     
     # 2. Generate Data
     if not os.path.exists(DATA_FILE):
