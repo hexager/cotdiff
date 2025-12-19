@@ -84,4 +84,3 @@ def generate_natural_pairs(model, tokenizer, num_samples=50):
 if __name__ == "__main__":
     # Test run (requires model loaded)
     pass 
-f
