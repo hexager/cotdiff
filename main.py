@@ -41,7 +41,7 @@ def main():
     
     # 4. Plot
     print("Plotting...")
-    plot_results.generate_plot("results_easy.pt", "results_hard.pt")
+    plot_results.generate_plot()
     print("Done! Check laziness_plot.png")
 
 if __name__ == "__main__":
