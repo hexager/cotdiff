@@ -11,7 +11,7 @@ def get_answer_token_id(tokenizer, ans_str):
     # Hack for speed: Just take the first token of the answer.
     tokens = tokenizer.encode(ans_str, add_special_tokens=False)
     return tokens[0]
-
+@torch.no_grad()
 def run_layer_sweep(model, dataset, batch_size=4):
     n_layers = model.cfg.n_layers
     n_samples = len(dataset)
